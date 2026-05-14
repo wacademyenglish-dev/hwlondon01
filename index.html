@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WOLF LABS | Homework App</title>
+    
+    <!-- Fonts: Outfit (UI), Roboto Condensed (News Broadcast), Share Tech Mono (Teleprompter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Roboto+Condensed:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { 
+                        bgDark: '#0a0a0a', 
+                        panelDark: '#141414', 
+                        panelHover: '#27272a', 
+                        textLight: '#f4f4f5', 
+                        textMuted: '#a1a1aa', 
+                        bbcRed: '#bb1919', 
+                        bbcGreen: '#16a34a', 
+                        bbcGrey: '#3f3f46' 
+                    },
+                    fontFamily: { 
+                        heading: ['"Roboto Condensed"', 'sans-serif'], 
+                        body: ['Outfit', 'sans-serif'], 
+                        mono: ['"Share Tech Mono"', 'monospace'] 
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background: #000000; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'Outfit', sans-serif; overflow: hidden; background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 80%);}
+        #phone-frame { width: 375px; height: 812px; background: #0a0a0a; border-radius: 40px; border: 12px solid #1a1a1a; overflow: hidden; position: relative; box-shadow: 0 20px 60px rgba(187,25,25,0.15); max-height: 100vh;}
+        .notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 150px; height: 30px; background: #1a1a1a; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; z-index: 50; }
+        
+        .studio-grid {
+            position: absolute; inset: 0; pointer-events: none; z-index: 0; opacity: 0.15;
+            background-image: linear-gradient(#27272a 1px, transparent 1px), linear-gradient(90deg, #27272a 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .fade-in { animation: fadeIn 0.3s ease-in forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+        
+        /* Confetti */
+        .confetti { position: absolute; width: 6px; height: 12px; opacity: 0; }
+        @keyframes fall { 0% { opacity: 1; transform: translateY(-50px) rotate(0deg); } 100% { opacity: 0; transform: translateY(800px) rotate(720deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="phone-frame">
+        <div class="studio-grid"></div>
+        <div class="notch"></div>
+        
+        <!-- UI Header -->
+        <header class="pt-12 pb-4 px-6 bg-[#0a0a0a] border-b border-bbcRed flex justify-between items-center z-40 relative shadow-[0_4px_15px_rgba(187,25,25,0.2)]">
+            <div class="font-heading font-black text-textLight text-lg tracking-widest uppercase">WOLF<span class="text-bbcRed">HW</span></div>
+            <div class="text-xs font-mono text-textMuted bg-panelDark px-2 py-1 rounded border border-panelHover" id="q-counter">Q 01/15</div>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="h-1 bg-panelHover w-full relative z-40">
+            <div id="progress-bar" class="h-full bg-bbcRed transition-all duration-300 shadow-[0_0_10px_rgba(187,25,25,0.8)]" style="width: 0%"></div>
+        </div>
+
+        <!-- Main Content -->
+        <main id="app-content" class="p-6 h-[calc(100%-100px)] overflow-y-auto relative text-textLight z-20 hide-scroll">
+            
+            <!-- Start Screen -->
+            <div id="screen-start" class="flex flex-col items-center justify-center h-full text-center fade-in">
+                <div class="w-24 h-24 bg-panelDark rounded-full flex items-center justify-center border border-bbcGrey mb-6 shadow-[0_0_30px_rgba(187,25,25,0.2)]">
+                    <i class="fa-solid fa-satellite-dish text-5xl text-bbcRed"></i>
+                </div>
+                <h1 class="font-heading text-4xl font-black mb-2 uppercase tracking-widest">London <br><span class="text-bbcRed">Challenge</span></h1>
+                <p class="text-textMuted mb-10 text-sm font-mono uppercase tracking-widest">Module A1<br>Verb To Be & Intros</p>
+                <button onclick="startQuiz()" class="bg-bbcRed text-white w-full py-4 rounded font-bold font-heading tracking-widest uppercase text-lg shadow-[0_4px_15px_rgba(187,25,25,0.4)] hover:bg-red-700 transition-colors">Start Broadcast</button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="screen-quiz" class="hidden flex-col h-full fade-in pt-4">
+                <div class="flex-1 flex flex-col justify-center">
+                    <div class="bg-panelDark border border-bbcGrey p-6 rounded relative mb-8 shadow-lg">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-panelHover via-bbcGrey to-panelHover opacity-50"></div>
+                        <p class="text-[10px] text-textMuted font-mono tracking-widest uppercase mb-3"><i class="fa-solid fa-circle text-[8px] text-bbcRed animate-pulse mr-1"></i> Teleprompter</p>
+                        <p id="question-text" class="font-heading text-3xl font-bold text-center leading-snug uppercase tracking-wide"></p>
+                    </div>
+                    
+                    <div id="options-container" class="flex flex-col gap-3">
+                        <!-- Options injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="screen-result" class="hidden flex-col items-center justify-center h-full text-center fade-in z-10 relative">
+                <div class="w-32 h-32 bg-panelDark rounded-full border-4 border-bbcRed flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(187,25,25,0.3)] relative mx-auto">
+                    <div class="absolute inset-2 border border-bbcGrey rounded-full"></div>
+                    <span id="final-rank" class="text-6xl font-black text-textLight font-heading uppercase tracking-tighter">A</span>
+                </div>
+                <h2 class="font-heading text-4xl font-black mb-2 text-textLight uppercase tracking-widest" id="final-title">Rank</h2>
+                <p class="text-textMuted font-mono mb-8 uppercase tracking-widest text-xs">Total Score: <span id="final-score" class="text-white font-bold"></span></p>
+                
+                <div class="bg-panelDark p-5 rounded w-full border border-bbcGrey mb-8 shadow-inner text-left">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 font-mono border-b border-panelHover pb-2">System Note</p>
+                    <p class="text-sm text-textLight leading-relaxed font-body">Use <span class="text-bbcRed font-bold">I AM / HE IS / THEY ARE</span> for names, ages, and cities.<br><br>Use <span class="text-white font-bold">HERE IS / HERE ARE</span> to present objects to someone.</p>
+                </div>
+                <button onclick="location.reload()" class="bg-transparent border-2 border-bbcGrey text-textLight w-full py-4 rounded font-bold font-heading tracking-widest uppercase hover:border-bbcRed hover:bg-bbcRed/10 transition-colors">Reboot System</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "Hello, I _____ Fran.", o: ["am", "is", "are"], a: 0 },
+            { q: "He _____ from York.", o: ["are", "am", "is"], a: 2 },
+            { q: "_____ are your phones.", o: ["Where", "Here", "There"], a: 1 },
+            { q: "She _____ 25 years old.", o: ["has", "is", "have"], a: 1 },
+            { q: "Where _____ you from?", o: ["is", "am", "are"], a: 2 },
+            { q: "They _____ contestants.", o: ["is", "are", "am"], a: 1 },
+            { q: "Nice to _____ you.", o: ["look", "see", "meet"], a: 2 },
+            { q: "Ten, twenty, _____, forty...", o: ["thirty", "twelve", "fifty"], a: 0 },
+            { q: "Here _____ your money.", o: ["are", "am", "is"], a: 2 },
+            { q: "I am _____ London.", o: ["from", "to", "in"], a: 0 },
+            { q: "_____ you ready?", o: ["Are", "Is", "Am"], a: 0 },
+            { q: "Here are your _____.", o: ["map", "a map", "maps"], a: 2 },
+            { q: "Paula _____ from Rochester.", o: ["is", "am", "are"], a: 0 },
+            { q: "I am 20 _____ old.", o: ["years", "year", "age"], a: 0 },
+            { q: "Nice to meet you. -> And _____.", o: ["me", "you", "too"], a: 1 }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+
+        function startQuiz() {
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.remove('hidden');
+            document.getElementById('screen-quiz').style.display = 'flex';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQ];
+            document.getElementById('q-counter').innerText = `Q ${String(currentQ + 1).padStart(2, '0')}/${questions.length}`;
+            document.getElementById('progress-bar').style.width = `${((currentQ) / questions.length) * 100}%`;
+            
+            // Format blank (BBC Red style)
+            const formattedQ = q.q.replace('_____', '<span class="text-bbcRed underline decoration-wavy px-2">_____</span>');
+            document.getElementById('question-text').innerHTML = `"${formattedQ}"`;
+            
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+            
+            q.o.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full bg-panelDark border border-panelHover text-left p-4 rounded text-lg hover:border-bbcRed hover:bg-panelHover transition-colors flex items-center font-body group';
+                btn.innerHTML = `
+                    <div class="w-8 h-8 border border-bbcGrey bg-bgDark flex items-center justify-center text-xs font-bold text-textMuted mr-4 font-mono group-hover:border-bbcRed rounded-sm">${String.fromCharCode(65+idx)}</div>
+                    <span class="font-medium text-textLight">${opt}</span>
+                `;
+                btn.onclick = () => handleAnswer(idx, q.a, btn, optsContainer);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selected, correct, btn, container) {
+            Array.from(container.children).forEach(b => b.disabled = true);
+            
+            if (selected === correct) {
+                // Correct styling
+                btn.classList.add('bg-bbcGreen/20', 'border-bbcGreen');
+                btn.classList.remove('bg-panelDark', 'border-panelHover', 'hover:border-bbcRed', 'hover:bg-panelHover');
+                btn.querySelector('div').classList.replace('text-textMuted', 'text-bbcGreen');
+                btn.querySelector('div').classList.replace('border-bbcGrey', 'border-bbcGreen');
+                btn.querySelector('span').classList.replace('text-textLight', 'text-bbcGreen');
+                score++;
+            } else {
+                // Wrong styling
+                btn.classList.add('bg-bbcRed/20', 'border-bbcRed', 'shake');
+                btn.classList.remove('bg-panelDark', 'border-panelHover', 'hover:border-bbcRed', 'hover:bg-panelHover');
+                btn.querySelector('div').classList.replace('text-textMuted', 'text-bbcRed');
+                btn.querySelector('div').classList.replace('border-bbcGrey', 'border-bbcRed');
+                btn.querySelector('span').classList.replace('text-textLight', 'text-bbcRed');
+                
+                // Show correct answer
+                const correctBtn = container.children[correct];
+                correctBtn.classList.add('bg-bbcGreen/20', 'border-bbcGreen');
+                correctBtn.classList.remove('bg-panelDark', 'border-panelHover', 'hover:border-bbcRed', 'hover:bg-panelHover');
+                correctBtn.querySelector('div').classList.replace('text-textMuted', 'text-bbcGreen');
+                correctBtn.querySelector('div').classList.replace('border-bbcGrey', 'border-bbcGreen');
+                correctBtn.querySelector('span').classList.replace('text-textLight', 'text-bbcGreen');
+            }
+
+            setTimeout(() => {
+                currentQ++;
+                if (currentQ < questions.length) {
+                    document.getElementById('screen-quiz').classList.remove('fade-in');
+                    void document.getElementById('screen-quiz').offsetWidth; 
+                    document.getElementById('screen-quiz').classList.add('fade-in');
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1400);
+        }
+
+        function showResults() {
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+            document.getElementById('screen-result').style.display = 'flex';
+            document.getElementById('progress-bar').style.width = '100%';
+            
+            document.getElementById('final-score').innerText = `${String(score).padStart(2,'0')} / ${questions.length}`;
+            
+            let rank, title, color;
+            const percentage = score / questions.length;
+            
+            if (percentage >= 0.9) { 
+                rank = 'S'; 
+                title = 'MASTER ANCHOR'; 
+                color = '#16a34a'; // bbcGreen
+                spawnConfetti(); 
+            } else if (percentage >= 0.7) { 
+                rank = 'A'; 
+                title = 'FIELD AGENT'; 
+                color = '#f4f4f5'; // textLight
+            } else { 
+                rank = 'B'; 
+                title = 'TRAINEE'; 
+                color = '#a1a1aa'; // textMuted
+            }
+            
+            const rankEl = document.getElementById('final-rank');
+            rankEl.innerText = rank;
+            rankEl.style.color = color;
+            rankEl.parentElement.style.borderColor = color;
+            document.getElementById('final-title').innerText = title;
+            document.getElementById('final-title').style.color = color;
+        }
+
+        function spawnConfetti() {
+            const container = document.getElementById('screen-result');
+            const colors = ['#bb1919', '#f4f4f5', '#27272a'];
+            for(let i=0; i<50; i++) {
+                let conf = document.createElement('div');
+                conf.className = 'confetti';
+                conf.style.left = Math.random() * 100 + '%';
+                conf.style.animation = `fall ${Math.random() * 2 + 2}s linear forwards`;
+                conf.style.animationDelay = Math.random() * 1.5 + 's';
+                conf.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+                container.appendChild(conf);
+            }
+        }
+    </script>
+</body>
+</html>
